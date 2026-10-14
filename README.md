@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="ember-runner.svg" width="250" alt="EMBER usage runner logo"/>
+  <img src="docs/branding/ember-runner.svg" width="250" alt="EMBER usage runner logo"/>
   <h3 align="center">Runner for the EMBER-DANDI Usage stats.</h3>
 </p>
 
