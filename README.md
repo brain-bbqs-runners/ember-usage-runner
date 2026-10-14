@@ -1,5 +1,7 @@
-# ember-usage-runner
-Runner for the EMBER-DANDI Usage stats.
+<p align="center">
+  <img src="ember-runner.svg" width="250" alt="EMBER usage runner logo"/>
+  <h3 align="center">Runner for the EMBER-DANDI Usage stats.</h3>
+</p>
 
 GitHub Action-controlled CRON jobs that extract the EMBER-DANDI S3 access logs and publish the access summaries
 from the self-hosted Typhon runner (moved from [CodyCBakerPhD/self-hosted-crons](https://github.com/CodyCBakerPhD/self-hosted-crons)).
