@@ -1,6 +1,7 @@
 <p align="center">
   <img src="docs/branding/ember-runner.svg" width="250" alt="EMBER usage runner logo"/>
-  <h3 align="center">Runner for the EMBER-DANDI Usage stats.</h3>
+
+  <h1 align="center">EMBER Usage (Runner)</h1>
 </p>
 
 GitHub Action-controlled CRON jobs that extract the EMBER-DANDI S3 access logs and publish the access summaries
