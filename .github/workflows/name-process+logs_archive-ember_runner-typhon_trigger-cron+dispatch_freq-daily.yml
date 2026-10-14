@@ -12,6 +12,8 @@ concurrency:
 env:
   CONDA_BASE_PATH: "/data/ember/s3-logs/conda"
   CONDA_ENV_NAME: "s3_logs_cron"
+  ENV_PATH: ${{ vars.S3LOGS_ENV_PATH }}
+  UV_PATH: ${{ vars.S3LOGS_UV_PATH }}
   S3_LOG_EXTRACTION_PASSWORD: ${{ secrets.S3_LOG_EXTRACTION_PASSWORD }}
   # Requesters are geolocated while the summaries are generated, against the GeoLite2 database
   MAXMIND_ACCOUNT_ID: ${{ secrets.MAXMIND_ACCOUNT_ID }}
@@ -24,6 +26,11 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     steps:
       - uses: actions/checkout@v6
+
+      - name: Validate required variables
+        run: |
+          [ -n "${{ vars.S3LOGS_ENV_PATH }}" ] || { echo "Repository variable S3LOGS_ENV_PATH must be set."; exit 1; }
+          [ -n "${{ vars.S3LOGS_UV_PATH }}" ] || { echo "Repository variable S3LOGS_UV_PATH must be set."; exit 1; }
 
       - name: Cancel if offline
         uses: ./.github/actions/check-runner
@@ -42,52 +49,64 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Run primary S3 log extraction
-        uses: ./.github/actions/run-s3logextraction-command
+        uses: CodyCBakerPhD/dandi-s3-logs-action/run-command@v1
         with:
           command: extract s3://ember-open-data-logs/650477180493/us-east-1/ember-open-data
           flags: --mode dandi-remote --manifest /data/ember/s3-logs/extraction_cache/manifest_parsed.json
-          flock_file: /data/ember/s3-logs/flocks/s3logextraction.lock
+          flock-file: /data/ember/s3-logs/flocks/s3logextraction.lock
+          env-path: ${{ env.ENV_PATH }}
+          uv-path: ${{ env.UV_PATH }}
 
       - name: Generate Dandiset summaries
-        uses: ./.github/actions/run-s3logextraction-command
+        uses: CodyCBakerPhD/dandi-s3-logs-action/run-command@v1
         with:
           command: update summaries
           flags: --mode dandi --api-url https://api-dandi.emberarchive.org/api
-          flock_file: /data/ember/s3-logs/flocks/s3logextraction.lock
+          flock-file: /data/ember/s3-logs/flocks/s3logextraction.lock
+          env-path: ${{ env.ENV_PATH }}
+          uv-path: ${{ env.UV_PATH }}
 
       - name: Generate archive summaries
-        uses: ./.github/actions/run-s3logextraction-command
+        uses: CodyCBakerPhD/dandi-s3-logs-action/run-command@v1
         with:
           command: update summaries
           flags: --mode archive
-          flock_file: /data/ember/s3-logs/flocks/s3logextraction.lock
+          flock-file: /data/ember/s3-logs/flocks/s3logextraction.lock
+          env-path: ${{ env.ENV_PATH }}
+          uv-path: ${{ env.UV_PATH }}
 
       # Reads the region labels out of the published `by_region.tsv` files, so it has to follow the summaries
       - name: Update region coordinates
-        uses: ./.github/actions/run-s3logextraction-command
+        uses: CodyCBakerPhD/dandi-s3-logs-action/run-command@v1
         with:
           command: update ip coordinates
-          flock_file: /data/ember/s3-logs/flocks/s3logextraction.lock
+          flock-file: /data/ember/s3-logs/flocks/s3logextraction.lock
+          env-path: ${{ env.ENV_PATH }}
+          uv-path: ${{ env.UV_PATH }}
 
       - name: Generate Dandiset totals
-        uses: ./.github/actions/run-s3logextraction-command
+        uses: CodyCBakerPhD/dandi-s3-logs-action/run-command@v1
         with:
           command: update totals
           flags: --mode dandi
-          flock_file: /data/ember/s3-logs/flocks/s3logextraction.lock
+          flock-file: /data/ember/s3-logs/flocks/s3logextraction.lock
+          env-path: ${{ env.ENV_PATH }}
+          uv-path: ${{ env.UV_PATH }}
 
       - name: Generate archive totals
-        uses: ./.github/actions/run-s3logextraction-command
+        uses: CodyCBakerPhD/dandi-s3-logs-action/run-command@v1
         with:
           command: update totals
           flags: --mode archive
-          flock_file: /data/ember/s3-logs/flocks/s3logextraction.lock
+          flock-file: /data/ember/s3-logs/flocks/s3logextraction.lock
+          env-path: ${{ env.ENV_PATH }}
+          uv-path: ${{ env.UV_PATH }}
 
       - name: Upload summaries
-        uses: ./.github/actions/upload-summaries
+        uses: CodyCBakerPhD/dandi-s3-logs-action/upload-summaries@v1
         with:
-          extraction_cache_path: /data/ember/s3-logs/extraction_cache
-          repository_path: /data/ember/s3-logs/ember-dandi-access-summaries
+          extraction-cache-path: /data/ember/s3-logs/extraction_cache
+          repository-path: /data/ember/s3-logs/ember-dandi-access-summaries
 
   NotifyOnFailure:
     if: ${{ always() && failure() }}  # 'always' for if any 'needs' are cancelled/skipped
