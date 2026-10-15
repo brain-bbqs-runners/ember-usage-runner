@@ -53,7 +53,7 @@ jobs:
 
     steps:
       - name: Generate Dandiset summaries
-        uses: CodyCBakerPhD/dandi-s3-logs-action/run-command@v1
+        uses: CodyCBakerPhD/dandi-s3-logs-action/run-command@v2
         with:
           command: update summaries
           flags: --cache ${{ env.S3_LOG_BASE_PATH }}/extraction_cache --api-url ${{ env.DANDI_API_URL }} --content-id-to-usage-dandiset-path-url ${{ env.CONTENT_ID_TO_USAGE_DANDISET_PATH_URL }}
@@ -63,7 +63,7 @@ jobs:
           entrypoint: 'dandis3logextraction'
 
       - name: Generate archive summaries
-        uses: CodyCBakerPhD/dandi-s3-logs-action/run-command@v1
+        uses: CodyCBakerPhD/dandi-s3-logs-action/run-command@v2
         with:
           command: update summaries
           flags: --cache ${{ env.S3_LOG_BASE_PATH }}/extraction_cache --mode archive --asset-types-in-order Neurophysiology,Microscopy,Video,Miscellaneous
@@ -74,7 +74,7 @@ jobs:
       # Reads the region labels out of the published `by_region.tsv` files, so it has to follow the summaries.
       # Runs through the default `s3logextraction` entrypoint, which `dandis3logextraction` does not re-expose.
       - name: Update region coordinates
-        uses: CodyCBakerPhD/dandi-s3-logs-action/run-command@v1
+        uses: CodyCBakerPhD/dandi-s3-logs-action/run-command@v2
         with:
           command: update ip coordinates --cache ${{ env.S3_LOG_BASE_PATH }}/extraction_cache --encryption false
           flock-file: ${{ env.FLOCK_FILE }}
@@ -82,7 +82,7 @@ jobs:
           uv-path: ${{ env.UV_PATH }}
 
       - name: Generate Dandiset totals
-        uses: CodyCBakerPhD/dandi-s3-logs-action/run-command@v1
+        uses: CodyCBakerPhD/dandi-s3-logs-action/run-command@v2
         with:
           command: update totals
           flags: --cache ${{ env.S3_LOG_BASE_PATH }}/extraction_cache
@@ -91,7 +91,7 @@ jobs:
           uv-path: ${{ env.UV_PATH }}
 
       - name: Generate archive totals
-        uses: CodyCBakerPhD/dandi-s3-logs-action/run-command@v1
+        uses: CodyCBakerPhD/dandi-s3-logs-action/run-command@v2
         with:
           command: update totals
           flags: --cache ${{ env.S3_LOG_BASE_PATH }}/extraction_cache --mode archive
@@ -100,7 +100,7 @@ jobs:
           uv-path: ${{ env.UV_PATH }}
 
       - name: Upload summaries
-        uses: CodyCBakerPhD/dandi-s3-logs-action/upload-summaries@v1
+        uses: CodyCBakerPhD/dandi-s3-logs-action/upload-summaries@v2
         with:
           extraction-cache-path: ${{ env.EXTRACTION_CACHE_PATH }}
           repository-path: ${{ env.ACCESS_SUMMARIES_REPOSITORY_PATH }}

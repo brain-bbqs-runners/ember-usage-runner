@@ -8,7 +8,7 @@ GitHub Action-controlled CRON jobs that extract the EMBER-DANDI S3 access logs a
 from the self-hosted Typhon runner (moved from [CodyCBakerPhD/self-hosted-crons](https://github.com/CodyCBakerPhD/self-hosted-crons)).
 They mirror the DANDI workflows in [brain-bbqs-runners/dandi-usage-runner](https://github.com/brain-bbqs-runners/dandi-usage-runner),
 pointed at the EMBER-DANDI API and the `ember-dandi-access-summaries` repository.
-The commands and the upload run through [CodyCBakerPhD/dandi-s3-logs-action](https://github.com/CodyCBakerPhD/dandi-s3-logs-action) `@v1`,
+The install, the commands and the upload run through [CodyCBakerPhD/dandi-s3-logs-action](https://github.com/CodyCBakerPhD/dandi-s3-logs-action) `@v2`,
 and the pre-run check through [CodyCBakerPhD/check-runner-action](https://github.com/CodyCBakerPhD/check-runner-action) `@v1`.
 
 | Workflow | Schedule |
@@ -16,6 +16,7 @@ and the pre-run check through [CodyCBakerPhD/check-runner-action](https://github
 | Run EMBER log extraction | Daily, 10:00 UTC |
 | Update EMBER summaries | Sundays, Wednesdays and Saturdays, 16:00 UTC |
 | Update unassociated EMBER summaries | 1st of each month, 13:00 UTC |
+| Install EMBER extraction packages (creates the environment on Python 3.14 if needed; `recreate` rebuilds it) | Manual dispatch only |
 
 ## Configuration
 
@@ -24,7 +25,7 @@ A self-hosted runner with the labels `typhon` and `ember` must be registered to 
 Repository variables:
 
 - `EMBER_S3_LOG_BASE_PATH` (holds `uv`, the environment, `extraction_cache`, `flocks` and the `ember-dandi-access-summaries` clone)
-- `S3LOGS_ENV_NAME` (the environment under that path, with `dandi_s3_log_extraction` installed)
+- `S3LOGS_ENV_NAME` (the environment under that path, which the install workflow creates and fills)
 - `CONTENT_ID_TO_USAGE_DANDISET_PATH_URL` (cache mapping EMBER content IDs to Dandisets; DANDI's default holds no EMBER content)
 
 Repository secrets:
