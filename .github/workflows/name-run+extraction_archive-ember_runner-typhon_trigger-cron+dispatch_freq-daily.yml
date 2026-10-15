@@ -43,7 +43,7 @@ jobs:
     steps:
       # The EMBER bucket has no S3 Inventory, so the logs are listed live through its year/month/day prefixes.
       - name: Run primary S3 log extraction
-        uses: CodyCBakerPhD/dandi-s3-logs-action/run-command@v1
+        uses: CodyCBakerPhD/dandi-s3-logs-action/run-command@v2
         with:
           command: extract s3://ember-open-data-logs/650477180493/us-east-1/ember-open-data
           flags: --mode remote --cache ${{ env.S3_LOG_BASE_PATH }}/extraction_cache --limit 1000000
