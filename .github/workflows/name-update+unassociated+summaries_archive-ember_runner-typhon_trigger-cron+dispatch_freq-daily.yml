@@ -38,7 +38,7 @@ jobs:
 
     steps:
       - name: Generate unassociated summaries
-        uses: CodyCBakerPhD/dandi-s3-logs-action/run-command@v2
+        uses: CodyCBakerPhD/dandi-s3-logs-action/run-command@v3
         with:
           command: update summaries
           flags: --unassociated --cache ${{ env.S3_LOG_BASE_PATH }}/extraction_cache --content-id-to-usage-dandiset-path-url ${{ env.CONTENT_ID_TO_USAGE_DANDISET_PATH_URL }}
