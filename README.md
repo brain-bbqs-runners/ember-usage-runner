@@ -8,7 +8,7 @@ GitHub Action-controlled CRON jobs that extract the EMBER-DANDI S3 access logs a
 from the self-hosted Typhon runner (moved from [CodyCBakerPhD/self-hosted-crons](https://github.com/CodyCBakerPhD/self-hosted-crons)).
 They mirror the DANDI workflows in [brain-bbqs-runners/dandi-usage-runner](https://github.com/brain-bbqs-runners/dandi-usage-runner),
 pointed at the EMBER-DANDI API and the `ember-dandi-access-summaries` repository.
-The install, the commands and the upload run through [CodyCBakerPhD/dandi-s3-logs-action](https://github.com/CodyCBakerPhD/dandi-s3-logs-action) `@v2`,
+The install, the commands and the upload run through [CodyCBakerPhD/dandi-s3-logs-action](https://github.com/CodyCBakerPhD/dandi-s3-logs-action) `@v3`,
 and the pre-run check through [CodyCBakerPhD/check-runner-action](https://github.com/CodyCBakerPhD/check-runner-action) `@v1`.
 
 | Workflow | Schedule |
@@ -22,9 +22,13 @@ and the pre-run check through [CodyCBakerPhD/check-runner-action](https://github
 
 A self-hosted runner with the labels `typhon` and `ember` must be registered to this repository.
 
-The workflows work under `/mnt/s3-logs/ember-s3-logs` on the runner's host, which holds `uv`, the environment (`env`,
-created and filled by the install workflow), `extraction_cache`, `flocks` and the `ember-dandi-access-summaries` clone.
-The path is written into the workflows, so no repository variables are needed.
+The workflows work under `/mnt/s3-logs/ember-s3-logs` on the runner's host, which holds `uv`, the environment (`env`),
+`extraction_cache`, `flocks` and the `ember-dandi-access-summaries` clone. The path is written into the workflows, so
+no repository variables are needed.
+
+On a fresh runner, dispatching the install workflow downloads `uv` and creates the environment, and the first summaries
+run clones [aplbrain/ember-dandi-access-summaries](https://github.com/aplbrain/ember-dandi-access-summaries) over SSH.
+The clone and its pushes use the runner user's own git credentials, so that user needs an SSH key with push access to it.
 
 Repository secrets:
 
