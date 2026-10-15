@@ -17,9 +17,9 @@ env:
   ACCESS_SUMMARIES_REPOSITORY_PATH: "${{ vars.EMBER_S3_LOG_BASE_PATH }}/ember-dandi-access-summaries"
   FLOCK_FILE: "${{ vars.EMBER_S3_LOG_BASE_PATH }}/flocks/s3logextraction.lock"
   DANDI_API_URL: "https://api-dandi.emberarchive.org/api"
-  # Content IDs are mapped to Dandisets through this cache. The plugin's default is DANDI's own, which holds no
-  # EMBER content, so without an EMBER cache every EMBER Dandiset would summarize as empty.
-  CONTENT_ID_TO_USAGE_DANDISET_PATH_URL: ${{ vars.CONTENT_ID_TO_USAGE_DANDISET_PATH_URL }}
+  # Content IDs are mapped to Dandisets through EMBER's own cache, published by ember-cache. The plugin's default
+  # is DANDI's, which holds no EMBER content, so with it every EMBER Dandiset would summarize as empty.
+  CONTENT_ID_TO_USAGE_DANDISET_PATH_URL: "https://raw.githubusercontent.com/ember-cache/content-id-to-usage-dandiset-path/refs/heads/dist/derivatives/content_id_to_usage_dandiset_path.jsonl.gz"
   S3_LOG_EXTRACTION_PASSWORD: ${{ secrets.S3_LOG_EXTRACTION_PASSWORD }}
   # Requesters are geolocated while the summaries are generated, against the GeoLite2 database
   MAXMIND_ACCOUNT_ID: ${{ secrets.MAXMIND_ACCOUNT_ID }}
@@ -35,7 +35,6 @@ jobs:
         run: |
           [ -n "${{ vars.EMBER_S3_LOG_BASE_PATH }}" ] || { echo "Repository variable EMBER_S3_LOG_BASE_PATH must be set."; exit 1; }
           [ -n "${{ vars.S3LOGS_ENV_NAME }}" ] || { echo "Repository variable S3LOGS_ENV_NAME must be set."; exit 1; }
-          [ -n "${{ vars.CONTENT_ID_TO_USAGE_DANDISET_PATH_URL }}" ] || { echo "Repository variable CONTENT_ID_TO_USAGE_DANDISET_PATH_URL must be set."; exit 1; }
           [ -n "$MAXMIND_ACCOUNT_ID" ] || { echo "Repository secret MAXMIND_ACCOUNT_ID must be set."; exit 1; }
           [ -n "$MAXMIND_LICENSE_KEY" ] || { echo "Repository secret MAXMIND_LICENSE_KEY must be set."; exit 1; }
 
