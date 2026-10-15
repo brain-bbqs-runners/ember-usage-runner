@@ -10,10 +10,10 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  S3_LOG_BASE_PATH: ${{ vars.EMBER_S3_LOG_BASE_PATH }}
-  ENV_PATH: "${{ vars.EMBER_S3_LOG_BASE_PATH }}/${{ vars.S3LOGS_ENV_NAME }}"
-  UV_PATH: "${{ vars.EMBER_S3_LOG_BASE_PATH }}/uv"
-  FLOCK_FILE: "${{ vars.EMBER_S3_LOG_BASE_PATH }}/flocks/s3logextraction.lock"
+  S3_LOG_BASE_PATH: "/mnt/s3-logs/ember-s3-logs"
+  ENV_PATH: "/mnt/s3-logs/ember-s3-logs/env"
+  UV_PATH: "/mnt/s3-logs/ember-s3-logs/uv"
+  FLOCK_FILE: "/mnt/s3-logs/ember-s3-logs/flocks/s3logextraction.lock"
   # Unassociated content is whatever this cache does not map, so DANDI's default would leave all of EMBER unassociated.
   CONTENT_ID_TO_USAGE_DANDISET_PATH_URL: "https://raw.githubusercontent.com/ember-cache/content-id-to-usage-dandiset-path/refs/heads/dist/derivatives/content_id_to_usage_dandiset_path.jsonl.gz"
   S3_LOG_EXTRACTION_PASSWORD: ${{ secrets.S3_LOG_EXTRACTION_PASSWORD }}
@@ -27,11 +27,6 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     steps:
-      - name: Validate required variables
-        run: |
-          [ -n "${{ vars.EMBER_S3_LOG_BASE_PATH }}" ] || { echo "Repository variable EMBER_S3_LOG_BASE_PATH must be set."; exit 1; }
-          [ -n "${{ vars.S3LOGS_ENV_NAME }}" ] || { echo "Repository variable S3LOGS_ENV_NAME must be set."; exit 1; }
-
       - name: Cancel if offline
         uses: CodyCBakerPhD/check-runner-action@v1
         with:
