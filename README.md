@@ -26,7 +26,6 @@ Repository variables:
 
 - `EMBER_S3_LOG_BASE_PATH` (holds `uv`, the environment, `extraction_cache`, `flocks` and the `ember-dandi-access-summaries` clone)
 - `S3LOGS_ENV_NAME` (the environment under that path, which the install workflow creates and fills)
-- `CONTENT_ID_TO_USAGE_DANDISET_PATH_URL` (cache mapping EMBER content IDs to Dandisets; DANDI's default holds no EMBER content)
 
 Repository secrets:
 
@@ -35,3 +34,7 @@ Repository secrets:
 - `IPS_TO_SKIP` (optional)
 - `_GITHUB_API_KEY` (token able to list this repository's runners, for the pre-run check)
 - `MAIL_USERNAME` / `MAIL_PASSWORD` (failure notifications)
+
+The summaries map EMBER content IDs to Dandisets through
+[ember-cache/content-id-to-usage-dandiset-path](https://github.com/ember-cache/content-id-to-usage-dandiset-path)
+(its `dist` branch), named in the summaries workflows. The plugin's default is DANDI's cache, which holds no EMBER content.
