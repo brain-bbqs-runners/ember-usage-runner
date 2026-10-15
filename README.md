@@ -22,10 +22,9 @@ and the pre-run check through [CodyCBakerPhD/check-runner-action](https://github
 
 A self-hosted runner with the labels `typhon` and `ember` must be registered to this repository.
 
-Repository variables:
-
-- `EMBER_S3_LOG_BASE_PATH` (holds `uv`, the environment, `extraction_cache`, `flocks` and the `ember-dandi-access-summaries` clone)
-- `S3LOGS_ENV_NAME` (the environment under that path, which the install workflow creates and fills)
+The workflows work under `/mnt/s3-logs/ember-s3-logs` on the runner's host, which holds `uv`, the environment (`env`,
+created and filled by the install workflow), `extraction_cache`, `flocks` and the `ember-dandi-access-summaries` clone.
+The path is written into the workflows, so no repository variables are needed.
 
 Repository secrets:
 
