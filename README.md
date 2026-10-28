@@ -31,10 +31,11 @@ does, using `snapshots/restic`, its password file `snapshots/.restic-password`, 
 `tmp` as its temporary directory.
 
 On a fresh runner, dispatching the install workflow downloads `uv` and creates the environment. It also sets up restic
-for the snapshots, each part only when it is missing: a pinned, checksum-verified binary at `snapshots/restic`, the
-password file `snapshots/.restic-password`, and the repository `snapshots/backups`. An existing binary, password file or
-repository, with its snapshots, is never replaced or deleted. A new password file takes the optional `RESTIC_PASSWORD`
-secret, or else the placeholder `123`, as on the DANDI runner, since the snapshots never leave the host.
+for the snapshots. It installs a pinned, checksum-verified binary at `snapshots/restic` when it is missing, and writes
+the `RESTIC_PASSWORD` secret to `snapshots/.restic-password`, which every restic step reads. The secret is first
+checked against an existing repository `snapshots/backups`, which is only initialized when it is missing. An existing
+binary, repository or snapshot is never replaced or deleted, and if the secret does not open the repository, the
+install fails and leaves the password file as it was.
 
 The first summaries run clones
 [aplbrain/ember-dandi-access-summaries](https://github.com/aplbrain/ember-dandi-access-summaries) over HTTPS.
@@ -45,7 +46,8 @@ runner's host) and is never written to the clone.
 Repository secrets:
 
 - `S3_LOG_EXTRACTION_PASSWORD`
-- `RESTIC_PASSWORD` (optional): the password for a new restic repository, in place of the placeholder
+- `RESTIC_PASSWORD`: the password of the restic repository `snapshots/backups`, written to the host by the install
+  workflow
 - `MAXMIND_ACCOUNT_ID` / `MAXMIND_LICENSE_KEY`
 - `SUMMARIES_REPOSITORY_TOKEN` (required by the summaries upload): a fine-grained token with the resource owner
   `aplbrain`, access to only `aplbrain/ember-dandi-access-summaries`, and the permission `Contents: Read and write`.
