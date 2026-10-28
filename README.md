@@ -42,11 +42,6 @@ Requester IPs to leave out are listed on the runner's host in the runner user's
 excluded addresses. The extraction drops their requests and every summaries workflow leaves them out, so no repository
 secret is needed. If the DANDI runner runs as the same user on the host, the two runners share this one file.
 
-```text
-192.0.2.1  # Reviewed mirror
-192.0.2.2
-```
-
 Only exact addresses are accepted. Networks in CIDR notation and patterns are refused with an error. An absent or
 empty file leaves no one out.
 
