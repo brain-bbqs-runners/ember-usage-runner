@@ -28,7 +28,7 @@ jobs:
     needs: CheckTyphon
     name: Process access logs
     runs-on: [self-hosted, typhon, ember]
-    timeout-minutes: 2880  # 48 hours
+    timeout-minutes: 7200  # 5 days, the documented maximum for self-hosted runners
 
     steps:
       # The EMBER bucket has no S3 Inventory, so the logs are listed live through its year/month/day prefixes.

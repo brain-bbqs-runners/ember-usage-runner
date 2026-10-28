@@ -34,7 +34,7 @@ jobs:
     needs: CheckTyphon
     name: Update EMBER summaries
     runs-on: [self-hosted, typhon, ember]
-    timeout-minutes: 4320  # 3 days
+    timeout-minutes: 7200  # 5 days, the documented maximum for self-hosted runners
 
     steps:
       - name: Generate unassociated summaries
