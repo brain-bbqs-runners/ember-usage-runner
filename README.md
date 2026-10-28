@@ -17,6 +17,7 @@ and the pre-run check through [CodyCBakerPhD/check-runner-action](https://github
 | Update EMBER summaries | Sundays, Wednesdays and Saturdays, 16:00 UTC |
 | Update unassociated EMBER summaries | 1st of each month, 13:00 UTC |
 | Install EMBER extraction packages (creates the environment on Python 3.14 if needed; `recreate` rebuilds it) | Manual dispatch only |
+| Scan EMBER extraction cache for excluded IPs (`validate excluded`, which fails, and so emails, if the cache still holds their requests) | Manual dispatch only |
 
 ## Configuration
 
@@ -49,6 +50,9 @@ secret is needed. If the DANDI runner runs as the same user on the host, the two
 
 Only exact addresses are accepted. Networks in CIDR notation and patterns are refused with an error. An absent or
 empty file leaves no one out.
+
+The scan workflow checks the cache for any of their requests extracted before they were listed, and fails if it finds
+any.
 
 Exclusion only works in one direction over time. Adding an address drops its requests from future extraction.
 Removing an address from the file does not bring its requests back, since they were never extracted. To include an
