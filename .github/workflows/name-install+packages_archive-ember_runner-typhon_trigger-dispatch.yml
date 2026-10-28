@@ -46,11 +46,11 @@ jobs:
           flock-file: ${{ env.S3_LOG_BASE_PATH }}/flocks/s3logextraction.lock
           recreate: ${{ inputs.recreate }}
 
-      # The remove workflow snapshots the cache with restic before rewriting it, as the DANDI runner does. This puts
-      # a pinned, checksum-verified restic binary at `snapshots/restic` and initializes `snapshots/backups`. Like the
-      # DANDI runner's, the repository uses a placeholder password unless the optional RESTIC_PASSWORD secret is set,
-      # since the snapshots never leave the host. An existing password file is never overwritten, since the
-      # repository can only be opened with the password it was created with.
+      # The remove workflow snapshots the cache with restic before rewriting it. This installs a pinned,
+      # checksum-verified restic binary at `snapshots/restic` and initializes `snapshots/backups`, each only when it is
+      # missing, so an existing binary, password file or repository and its snapshots are never replaced or deleted.
+      # The repository uses a placeholder password unless the optional RESTIC_PASSWORD secret is set, since the
+      # snapshots never leave the host.
       - name: Set up restic
         working-directory: ${{ env.S3_LOG_BASE_PATH }}/
         env:
@@ -61,7 +61,7 @@ jobs:
           set -euo pipefail
           mkdir -p snapshots tmp
 
-          if [ ! -x snapshots/restic ] || ! snapshots/restic version | grep -q "restic ${RESTIC_VERSION} "; then
+          if [ ! -x snapshots/restic ]; then
             case "$(uname -m)" in
               x86_64) arch=amd64 ;;
               aarch64) arch=arm64 ;;
@@ -78,12 +78,13 @@ jobs:
             mv snapshots/restic.new snapshots/restic
             rm -rf "${download_directory}"
           fi
+          ./snapshots/restic version
 
           if [ ! -s snapshots/.restic-password ]; then
             (umask 077 && printf '%s' "${RESTIC_PASSWORD_SECRET:-123}" > snapshots/.restic-password)
           fi
 
-          if [ ! -f snapshots/backups/config ]; then
+          if [ ! -e snapshots/backups/config ]; then
             ./snapshots/restic init --repo ./snapshots/backups/ --password-file ./snapshots/.restic-password
           fi
 

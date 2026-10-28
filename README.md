@@ -30,12 +30,14 @@ no repository variables are needed. The remove workflow snapshots the cache with
 does, using `snapshots/restic`, its password file `snapshots/.restic-password`, the repository `snapshots/backups`, and
 `tmp` as its temporary directory.
 
-On a fresh runner, dispatching the install workflow downloads `uv` and creates the environment. It also downloads a
-pinned, checksum-verified restic to `snapshots/restic` and initializes `snapshots/backups`. If
-`snapshots/.restic-password` does not exist yet, it is written from the optional `RESTIC_PASSWORD` secret, or else
-from the placeholder `123`, as on the DANDI runner, since the snapshots never leave the host. The password file is
-never overwritten, since the repository only opens with the password it was created with. The first summaries run
-clones [aplbrain/ember-dandi-access-summaries](https://github.com/aplbrain/ember-dandi-access-summaries) over HTTPS.
+On a fresh runner, dispatching the install workflow downloads `uv` and creates the environment. It also sets up restic
+for the snapshots, each part only when it is missing: a pinned, checksum-verified binary at `snapshots/restic`, the
+password file `snapshots/.restic-password`, and the repository `snapshots/backups`. An existing binary, password file or
+repository, with its snapshots, is never replaced or deleted. A new password file takes the optional `RESTIC_PASSWORD`
+secret, or else the placeholder `123`, as on the DANDI runner, since the snapshots never leave the host.
+
+The first summaries run clones
+[aplbrain/ember-dandi-access-summaries](https://github.com/aplbrain/ember-dandi-access-summaries) over HTTPS.
 The clone and its pushes authenticate with the `SUMMARIES_REPOSITORY_TOKEN` secret, so the runner user needs no git
 credentials of its own. The token reaches git through the step's environment (which needs git 2.31 or newer on the
 runner's host) and is never written to the clone.
