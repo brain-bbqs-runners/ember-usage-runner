@@ -27,11 +27,10 @@ The workflows work under `/mnt/s3-logs/ember-s3-logs` on the runner's host, whic
 no repository variables are needed.
 
 On a fresh runner, dispatching the install workflow downloads `uv` and creates the environment, and the first summaries
-run clones [aplbrain/ember-dandi-access-summaries](https://github.com/aplbrain/ember-dandi-access-summaries) over SSH.
-The clone and its pushes use the runner user's own git credentials, so that user needs an SSH key with push access to it.
-Git runs SSH in batch mode there, so the key must not need a passphrase and `github.com` must already be in that user's
-`known_hosts`: a prompt fails the upload instead of waiting for an answer. To pick the key, name it in the user's
-`~/.ssh/config`, since the step's `GIT_SSH_COMMAND` takes precedence over git's `core.sshCommand`.
+run clones [aplbrain/ember-dandi-access-summaries](https://github.com/aplbrain/ember-dandi-access-summaries) over HTTPS.
+The clone and its pushes authenticate with the `SUMMARIES_REPOSITORY_TOKEN` secret, so the runner user needs no git
+credentials of its own. The token reaches git through the step's environment (which needs git 2.31 or newer on the
+runner's host) and is never written to the clone.
 
 Repository secrets:
 
@@ -39,6 +38,9 @@ Repository secrets:
 - `MAXMIND_ACCOUNT_ID` / `MAXMIND_LICENSE_KEY`
 - `IPS_TO_SKIP` (required by the extraction): a regex of requester IPs to leave out. The extractor treats an empty value
   as matching every IP and would record nothing, so with none to leave out, set it to `^$`.
+- `SUMMARIES_REPOSITORY_TOKEN` (required by the summaries upload): a fine-grained token with the resource owner
+  `aplbrain`, access to only `aplbrain/ember-dandi-access-summaries`, and the permission `Contents: Read and write`.
+  Fine-grained tokens expire, and an expired one fails the upload, so renew it and update the secret.
 - `_GITHUB_API_KEY` (token able to list this repository's runners, for the pre-run check)
 - `MAIL_USERNAME` / `MAIL_PASSWORD` (failure notifications)
 
