@@ -27,9 +27,12 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     steps:
       - name: Validate required secrets
+        env:
+          SUMMARIES_REPOSITORY_TOKEN: ${{ secrets.SUMMARIES_REPOSITORY_TOKEN }}
         run: |
           [ -n "$MAXMIND_ACCOUNT_ID" ] || { echo "Repository secret MAXMIND_ACCOUNT_ID must be set."; exit 1; }
           [ -n "$MAXMIND_LICENSE_KEY" ] || { echo "Repository secret MAXMIND_LICENSE_KEY must be set."; exit 1; }
+          [ -n "$SUMMARIES_REPOSITORY_TOKEN" ] || { echo "Repository secret SUMMARIES_REPOSITORY_TOKEN must be set."; exit 1; }
 
       - name: Cancel if offline
         uses: CodyCBakerPhD/check-runner-action@v1
@@ -91,15 +94,31 @@ jobs:
           env-path: ${{ env.S3_LOG_BASE_PATH }}/env
           uv-path: ${{ env.S3_LOG_BASE_PATH }}/uv
 
+      # Git pushes over HTTPS with the token, which a credential helper reads from this step's environment, so it is
+      # never written to the clone. The empty helper drops any the runner user has, and an SSH remote, as an older
+      # clone may have, is rewritten to HTTPS so it uses the token too. A prompt never shows in the log and waits
+      # forever, so git is told not to prompt, and the timeout bounds any other stall.
       - name: Upload summaries
         uses: CodyCBakerPhD/dandi-s3-logs-action/upload-summaries@v3
+        timeout-minutes: 60
+        env:
+          SUMMARIES_REPOSITORY_TOKEN: ${{ secrets.SUMMARIES_REPOSITORY_TOKEN }}
+          GIT_TERMINAL_PROMPT: "0"
+          GIT_CONFIG_COUNT: "3"
+          GIT_CONFIG_KEY_0: credential.helper
+          GIT_CONFIG_VALUE_0: ""
+          GIT_CONFIG_KEY_1: credential.helper
+          GIT_CONFIG_VALUE_1: '!f() { if [ "$1" = get ]; then printf "username=x-access-token\npassword=%s\n" "$SUMMARIES_REPOSITORY_TOKEN"; fi; }; f'
+          GIT_CONFIG_KEY_2: url.https://github.com/.insteadOf
+          GIT_CONFIG_VALUE_2: "git@github.com:"
         with:
           extraction-cache-path: ${{ env.S3_LOG_BASE_PATH }}/extraction_cache
           repository-path: ${{ env.S3_LOG_BASE_PATH }}/ember-dandi-access-summaries
-          repository-url: git@github.com:aplbrain/ember-dandi-access-summaries.git
+          repository-url: https://github.com/aplbrain/ember-dandi-access-summaries.git
 
   NotifyOnFailure:
-    if: ${{ always() && failure() }}  # 'always' for if any 'needs' are cancelled/skipped
+    # A job that times out, or waits a day in the queue for the runner, ends as cancelled rather than failed
+    if: ${{ always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) }}
     needs: [CheckTyphon, UpdateEmberSummaries]
     runs-on: ubuntu-latest
     steps:
